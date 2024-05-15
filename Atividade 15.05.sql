@@ -158,13 +158,13 @@ INSERT INTO PROJETO
 VALUES 
     ('ProdutoA', 4, 'Santo André', 2);
     
-#Já existe uma entrada na tabela DEPARTAMENTO com Dnumero = 4. Como o número do departamento é a chave primária, não é possível inserir um novo departamento com o mesmo número.
+#Já existe uma entrada na tabela DEPARTAMENTO com Dnumero = 4. Restrição de Unicidade.
 INSERT INTO DEPARTAMENTO 
     (Dnome, Dnumero, Cpf_gerente, Data_inicio_gerente)
 VALUES 
     ('Producao', 4, '94377554355', '2007-10-01');
 
-#A coluna Pnr (número do projeto) não pode ser NULL. É necessário fornecer um valor válido de Pnr que corresponda a um projeto existente na tabela PROJETO    
+#A coluna Pnr (número do projeto) não pode ser NULL. restrição de Nulicidade    
 INSERT INTO TRABALHA_EM 
     (Fcpf, Pnr, Horas)
 VALUES 
@@ -177,10 +177,10 @@ VALUES
 
 DELETE FROM TRABALHA_EM WHERE Fcpf = '33344555587';
 
-#O CPF 98765432168 está sendo referenciado na tabela DEPARTAMENTO como Cpf_gerente.
+#O CPF 98765432168 está sendo referenciado na tabela DEPARTAMENTO como Cpf_gerente. Restrição de integridade referencial.
 DELETE FROM FUNCIONARIO WHERE Cpf = '98765432168';
 
-#O projeto ProdutoX está sendo referenciado na tabela TRABALHA_EM. 
+#O projeto ProdutoX está sendo referenciado na tabela TRABALHA_EM. Restrição de integridade referencial.
 DELETE FROM PROJETO WHERE Projnome = 'ProdutoX';
 
 UPDATE DEPARTAMENTO 
@@ -196,6 +196,9 @@ SET Horas = 5.0
 WHERE Fcpf = '99988777767' AND Pnr = 10;
 
 
+
+
+    
 
 
     
