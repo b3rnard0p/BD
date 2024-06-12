@@ -269,7 +269,35 @@ WHERE T.Fcpf = F.Cpf
 AND T.Pnr = P.Projnumero
 ORDER BY F.Pnome;
 
+SELECT Pnome, Unome, Endereco
+FROM Funcionario
+INNER JOIN Departamento
+ON Funcionario.Dnr = Departamento.Dnumero
+WHERE Departamento.Dnome = 'Pesquisa'
+ORDER BY Pnome;
 
+SELECT F.Pnome AS 'Nome', P.Projnome AS 'Nome do Projeto'
+FROM Funcionario AS F
+INNER JOIN trabalha_em AS T
+ON F.Cpf = T.Fcpf
+INNER JOIN projeto AS P
+ON T.Pnr = P.Projnumero
+WHERE P.Projnome = 'Produtox'
+ORDER BY F.Pnome ASC;
+
+SELECT P.Projnome, D.Dnome, F.Unome, F.Endereco, F.Datanasc
+FROM Funcionario AS F
+INNER JOIN Departamento AS D
+ON F.Cpf = D.Cpf_Gerente
+INNER JOIN Projeto AS P
+ON D.Dnumero = P.Dnum 
+WHERE P.Projlocal = 'Mauá';
+
+SELECT S.Pnome AS 'Supervisionados', G.Pnome AS 'Gerentes'
+FROM Funcionario AS S
+LEFT JOIN Funcionario AS G
+ON S.Cpf_supervisor = G.Cpf
+ORDER BY S.Pnome ASC;
 
 
 
