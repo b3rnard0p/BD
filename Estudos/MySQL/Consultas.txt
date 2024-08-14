@@ -1,0 +1,130 @@
+-- Simples
+SELECT DISTINCT Salario
+FROM FUNCIONARIO;
+
+-- WHERE
+SELECT *
+FROM FUNCIONARIO
+WHERE Pnome = 'João';
+
+-- AND
+SELECT *
+FROM FUNCIONARIO
+WHERE Salario >= 30000 AND Sexo = 'M';
+
+-- OR
+SELECT *
+FROM FUNCIONARIO
+WHERE Endereco LIKE '%São Paulo%' OR Endereco LIKE '%Curitiba%';
+
+-- NOT
+SELECT *
+FROM FUNCIONARIO
+WHERE Endereco NOT LIKE '%São Paulo%';
+
+-- ORDER BY
+SELECT *
+FROM FUNCIONARIO
+ORDER BY Salario DESC;
+
+-- IS NULL
+SELECT *
+FROM FUNCIONARIO
+WHERE Cpf_supervisor IS NULL;
+
+-- IS NOT NULL
+SELECT *
+FROM FUNCIONARIO
+WHERE Cpf_supervisor IS NOT NULL;
+
+-- LIMIT
+SELECT *
+FROM FUNCIONARIO
+ORDER BY Salario DESC
+LIMIT 3;
+
+-- SELECT MIN
+SELECT MIN(Salario)
+FROM FUNCIONARIO;
+
+SELECT *
+FROM FUNCIONARIO
+WHERE Salario = (
+    SELECT MIN(Salario)
+    FROM FUNCIONARIO
+);
+
+-- Criando variável
+SET @Salario_Min = (SELECT MIN(Salario) FROM FUNCIONARIO);
+
+SELECT *
+FROM FUNCIONARIO
+WHERE Salario = @Salario_Min;
+
+-- SELECT MAX
+SELECT MAX(Salario) AS Maior_Salario
+FROM FUNCIONARIO;
+
+-- Selecionando os funcionários com o maior salário
+SELECT *
+FROM FUNCIONARIO
+WHERE Salario = (
+    SELECT MAX(Salario)
+    FROM FUNCIONARIO
+);
+
+-- COUNT
+SELECT COUNT(*) AS Total_Funcionarios
+FROM FUNCIONARIO;
+
+-- AVG
+-- MySQL também permite variáveis, mas aqui está como você pode calcular e imprimir a diferença diretamente:
+SELECT 
+    @Salario_AVG := AVG(Salario),
+    @Salario_MAX := MAX(Salario),
+    @Salario_MAX - @Salario_AVG AS Diferenca
+FROM FUNCIONARIO;
+
+-- LIKE
+SELECT *
+FROM FUNCIONARIO
+WHERE Datanasc LIKE '%-72%';
+
+-- IN
+SELECT *
+FROM FUNCIONARIO
+WHERE Salario IN (25000, 30000);
+
+-- Usando CONCAT
+SELECT *
+FROM TRABALHA_EM
+WHERE (Pnr, Horas) IN (
+    SELECT Pnr, Horas
+    FROM TRABALHA_EM
+    WHERE Fcpf = (
+        SELECT Cpf
+        FROM FUNCIONARIO
+        WHERE Pnome = 'Fernando'
+    )
+)
+AND Fcpf <> (
+    SELECT Cpf
+    FROM FUNCIONARIO
+    WHERE Pnome = 'Fernando'
+);
+
+-- Mesma resposta, solução diferente
+SELECT DISTINCT T1.Fcpf
+FROM TRABALHA_EM AS T1
+JOIN TRABALHA_EM AS T2
+    ON T1.Pnr = T2.Pnr AND T1.Horas = T2.Horas
+WHERE T2.Fcpf = (
+    SELECT Cpf
+    FROM FUNCIONARIO
+    WHERE Pnome = 'Fernando'
+)
+AND T1.Fcpf <> (
+    SELECT Cpf
+    FROM FUNCIONARIO
+    WHERE Pnome = 'Fernando'
+);
