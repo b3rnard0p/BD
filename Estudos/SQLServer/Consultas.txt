@@ -123,3 +123,80 @@ JOIN TRABALHA_EM AS T2
        ON T1.Pnr = T2.Pnr AND T1.Horas = T2.Horas
 	   WHERE T2.Fcpf = '33344555587'
 	   AND T1.Fcpf <> '33344555587';
+
+--Between
+SELECT Pnome
+FROM FUNCIONARIO AS F
+WHERE F.Salario BETWEEN 30000 AND 40000
+AND F.Dnr = 5
+ORDER BY F.Salario ASC;
+
+--AS
+SELECT F.Pnome AS 'Nome', F.Unome AS 'Sobrenome'
+FROM FUNCIONARIO AS F;
+
+SELECT CONCAT (F.Pnome, ' ', F.Minicial, ' ', F.Unome, ' ') AS 'Nome Completo'
+FROM FUNCIONARIO AS F
+
+SELECT CONCAT (F.Pnome, ' ', F.Minicial, ' ', F.Unome, ' ') AS 'Nome Completo'
+FROM FUNCIONARIO AS F, DEPARTAMENTO AS D
+WHERE F.Dnr = D.Dnumero
+AND D.Dnome = 'Pesquisa';
+
+SELECT F.Pnome AS Funcionario, G.Pnome AS Gerente
+FROM FUNCIONARIO AS F
+JOIN FUNCIONARIO AS G
+ON F.Cpf_supervisor = G.Cpf;
+
+INSERT INTO FUNCIONARIO(Pnome, Minicial, Unome, Cpf, Datanasc, Endereco, Sexo, Salario)
+VALUES ('Carolos', 'M', 'Ferreira', '11111111111', '1980-02-15', 'Av. Medianeira, 55, Santa Maria, RS', 'M', 500),
+       ('Mariana', 'L', 'Gomes', '12222222222', '1995-06-12', 'Av. Presidente Vargas, 614, Faxinal, RS', 'F', 33500),
+       ('Juca', 'P', 'da Silva', '78965412365', '1990-11-10', 'Rua Venâncio Aires, 002, São Sepé, RS', 'M', 10000);
+
+
+INSERT INTO DEPARTAMENTO (Dnome, Dnumero)
+VALUES ('Vendas', 6),
+       ('Recursos Humanos', 7),
+	   ('TI', 8);
+
+--INNER JOIN
+SELECT F.*, D.*
+FROM FUNCIONARIO AS F
+INNER JOIN DEPARTAMENTO AS D ON F.Dnr = D.Dnumero;
+
+SELECT F.Pnome, F.Unome, F.Endereco
+FROM FUNCIONARIO AS F
+INNER JOIN DEPARTAMENTO AS D ON F.Dnr = D.Dnumero
+WHERE D.Dnome = 'Pesquisa';
+
+SELECT CONCAT (F.Pnome, ' ', F.Minicial, ' ', F.Unome, ' ') AS 'Nome Completo'
+FROM FUNCIONARIO AS F
+JOIN TRABALHA_EM AS TE ON TE.Fcpf = F.Cpf
+JOIN PROJETO AS P ON TE.Pnr = P.Projnumero
+WHERE P.Projnome = 'ProdutoX';
+
+SELECT P.Dnum, D.Dnumero, F.Unome, F.Endereco, F.Datanasc
+FROM FUNCIONARIO AS F
+JOIN DEPARTAMENTO AS D ON D.Cpf_gerente = F.Cpf
+JOIN PROJETO AS P ON D.Dnumero = P.Dnum
+WHERE P.Projlocal = 'Mauá'
+
+--LEFT JOIN OR RIGHT JOIN
+SELECT F.*, D.*
+FROM FUNCIONARIO AS F
+LEFT JOIN DEPARTAMENTO AS D ON F.Dnr = D.Dnumero;
+
+SELECT F.*, D.*
+FROM FUNCIONARIO AS F
+LEFT JOIN DEPARTAMENTO AS D ON F.Dnr = D.Dnumero
+WHERE F.Dnr IS NULL;
+
+SELECT D.*
+FROM DEPARTAMENTO AS D
+LEFT JOIN FUNCIONARIO AS F ON D.Dnumero = F.Dnr
+WHERE F.Dnr IS NULL;
+
+--FULL JOIN
+SELECT F.*, D.*
+FROM FUNCIONARIO AS F
+FULL JOIN DEPARTAMENTO AS D ON F.Dnr = Dnumero;
