@@ -253,3 +253,182 @@ HAVING COUNT(F.Cpf) > 3;
 SELECT F.*
 FROM FUNCIONARIO AS F
 WHERE EXISTS (SELECT 1 FROM DEPARTAMENTO AS D WHERE D.Cpf_gerente = F.Cpf);
+
+--DECLARE
+--Declarando variáveis
+DECLARE @valor INT,
+        @nome VARCHAR(50),
+		@data DATE,
+		@salario MONEY;
+
+--SET
+--Setamdo os valores das variáveis
+SET @nome = 'Bernardo P. Freitas'
+SET @data = '2004-11-01'
+SET @salario = '50000'
+
+--SELECT
+--Exibindo valor
+SELECT @nome AS 'Nome Completo',
+       @data AS 'Nascimento',
+       @salario AS 'Salario';
+
+--PRINT
+PRINT 'O meu nome é: '
+      + @nome
+	  + ', minha data de nascimento é: '
+	  +CAST(@data AS VARCHAR(15))
+	  + ' e minha idade é: '
+	  +CAST((YEAR(GETDATE()) - YEAR(@data)) AS VARCHAR(4));
+
+
+--SELECT para colocar valor em uma variável
+--Declarado as variáveis 
+DECLARE @Nome_Funcionario VARCHAR(100),
+        @Salario DECIMAl(10,2),
+		@Aumento DECIMAL(10,2),
+		@Novo_Salario DECIMAL(10,2);
+
+--Atribuindo um nome e um salário
+SELECT @Nome_Funcionario = F.Pnome, @Salario = F.Salario
+FROM FUNCIONARIO AS F
+WHERE F.Pnome = 'Jennifer';
+
+SELECT @Nome_Funcionario, @Salario;
+
+--Conceder aumento de 10% para a Jennifer
+SET @Aumento = 0.1;
+SET @Novo_Salario = @Salario + (@Salario*@Aumento);
+
+--Exibindo o novo salário
+PRINT 'Funcionario(a): ' 
+      + @Nome_Funcionario
+	  + ' Salario: '
+	  +CAST(@Salario AS VARCHAR(15))
+	  +' Novo salário(+10%): '
+	  + CAST(@Novo_Salario AS VARCHAR(15));
+
+--Salavando novo salário no Banco
+UPDATE FUNCIONARIO
+SET Salario = @Novo_Salario
+WHERE Pnome = 'Jennifer';
+
+SELECT * FROM FUNCIONARIO WHERE Pnome = 'Jennifer';
+
+--Recuperar o departamento de ID 5
+DECLARE @Nome_Departamento VARCHAR(50);
+
+SELECT @Nome_Departamento = D.Dnome
+FROM DEPARTAMENTO AS D
+WHERE d.Dnumero = 5
+
+SELECT @Nome_Departamento AS 'Nome Departamento';
+
+--Criando tabela provisória
+DECLARE @ALUNO TABLE (
+        Id INT IDENTITY PRIMARY KEY,
+		Nome VARCHAR(15),
+		Data_Nasc DATE,
+		Curso CHAR(2)
+);
+
+--Inserir valores nesta tabela
+INSERT INTO @ALUNO
+VALUES('Juca da Silva', '1990-12-25', 'SI');
+
+--Recuperar infomações desra tabela 
+SELECT * 
+FROM @ALUNO;
+
+DECLARE @Idade INT;
+
+SELECT @Idade = (YEAR (GETDATE()) - YEAR(Data_Nasc))
+FROM @ALUNO
+WHERE Id = 1;
+
+PRINT 'Idade: ' + CAST(@Idade AS VARCHAR(3));
+
+
+--CAST
+--Usando CAST para converter o salário em uma String
+SELECT 'O Funcionario' 
+       + F.Pnome 
+	   + ' Tem um salario de: ' 
+	   + CAST(F.Salario AS VARCHAR(15)) AS 'Nome / Salário'
+FROM FUNCIONARIO AS F;
+
+--CONVERT
+SELECT 'O Funcionario ' 
+       + F.Pnome 
+	   + ' tem um salario de: ' 
+	   + CONVERT(VARCHAR(15),F.Salario) AS 'Nome / Salário'
+FROM FUNCIONARIO AS F;
+
+--Convertendo o formato da data 
+SELECT 'O Funcionario ' 
+       + F.Pnome 
+	   + ' tem um salario de: ' 
+	   + CONVERT(VARCHAR(15),F.Datanasc, 103) AS 'Nome / Data Nascimento'
+FROM FUNCIONARIO AS F;
+
+--IF/ELSE
+DECLARE @idade INT,
+        @nome VARCHAR(15);
+
+--Sentando valores
+SET @Idade = 19;
+SET @nome = 'Juca';
+
+If(@Idade>19)
+   PRINT 'O usuário: ' + @nome + 'pode acessar o site';
+ELSE
+   PRINT 'O usuário: ' + @nome + 'não tem idade permitida';
+
+--Verificando se o funcionário recebe acima da média salarial
+DECLARE @Salario_Medio DECIMAL(10,2),
+        @Salario_Funcionario DECIMAL(10,2),
+		@Nome_Funcionario VARCHAR(50) = 'Jennifer';
+
+SELECT @Salario_Medio = AVG(Salario)
+FROM FUNCIONARIO
+
+SELECT @Salario_Funcionario = Salario
+FROM FUNCIONARIO
+WHERE Pnome = 'Jennifer';
+
+PRINT 'O salário médio: ' 
+       + CONVERT(VARCHAR(10), @Salario_Medio) 
+	   + ' Salário da ' 
+	   + @Nome_Funcionario + ' : ' 
+	   +  CONVERT(VARCHAR(10),@Salario_Funcionario)
+IF (@Salario_Medio> @Salario_Funcionario)
+    PRINT 'Salário abaixo da média'
+ELSE
+    PRINT 'Salário acima da média'
+
+--Verificando se um banco já existe
+IF NOT EXISTS (SELECT *
+               FROM sys.databases
+			   WHERE name = 'Biblioteca')
+  BEGIN
+    CREATE DATABASE Biblioteca;
+  END
+ELSE
+    PRINT 'Já existe um banco com este nome';
+
+--Verificando se uma tabela já existe no banco
+IF NOT EXISTS (SELECT *
+               FROM sys.objects
+			   WHERE object_id = OBJECT_ID('FACULDADE'))
+   BEGIN
+   CREATE TABLE FACULDADE(
+   Id INT IDENTITY PRIMARY KEY,
+   Nome VARCHAR(100),
+   Nota1 FLOAT,
+   Nota2 FLOAT,
+   Nota3 FLOAT
+   );
+   END
+ELSE 
+   PRINT 'Já existe uma tabela com esse nome'
+
