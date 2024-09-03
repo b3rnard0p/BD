@@ -262,7 +262,7 @@ DECLARE @valor INT,
 		@salario MONEY;
 
 --SET
---Setamdo os valores das variáveis
+--Setado os valores das variáveis
 SET @nome = 'Bernardo P. Freitas'
 SET @data = '2004-11-01'
 SET @salario = '50000'
@@ -387,7 +387,7 @@ ELSE
 --Verificando se o funcionário recebe acima da média salarial
 DECLARE @Salario_Medio DECIMAL(10,2),
         @Salario_Funcionario DECIMAL(10,2),
-		@Nome_Funcionario VARCHAR(50) = 'Jennifer';
+	@Nome_Funcionario VARCHAR(50) = 'Jennifer';
 
 SELECT @Salario_Medio = AVG(Salario)
 FROM FUNCIONARIO
@@ -431,4 +431,20 @@ IF NOT EXISTS (SELECT *
    END
 ELSE 
    PRINT 'Já existe uma tabela com esse nome'
+
+DECLARE @Nome = 'Bernardo P. de Freitas'
+        @Curso VARCHAR(2)
+        @Idade INT.
+SET @Data_Nasc = '2004-11-01';
+SET @Curso = 'SI';
+
+IF(MONTH(GETDATE()>MONTH(@Data_Nasc))
+   SET @Idade = YEAR(GETDATE())-YEAR(@Data-Nasc)
+ELSE IF (MONTH(GETDATE()) = MONTH(@Data-Nasc)
+        AND DAY(GETDATE())>=DAY(@Data-Nasc));
+   SET @Idade = YEAR(GETDATE())-YEAR(@Data-Nasc);
+ELSE
+    SET @Idade = YEAR(GETDATE())-YEAR(@Data-Nasc)-1;
+
+
 
