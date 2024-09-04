@@ -446,5 +446,101 @@ ELSE IF (MONTH(GETDATE()) = MONTH(@Data-Nasc)
 ELSE
     SET @Idade = YEAR(GETDATE())-YEAR(@Data-Nasc)-1;
 
+--Aposentadoria
+DECLARE @Idade_Funcionario INT,
+        @Nome_Funcionario VARCHAR(50) = 'André'
+
+SELECT @Idade_Funcionario = DATEDIFF(YEAR,F.Datanasc,GETDATE())
+FROM FUNCIONARIO AS F
+WHERE F.Pnome = @Nome_Funcionario;
+
+
+
+IF (@Idade_Funcionario>=60)
+   PRINT 'A '+ @Nome_Funcionario + ' tem ' 
+         + CAST(@Idade_Funcionario AS VARCHAR(30))
+		 + ', pode aposentar'
+ELSE IF(@Idade_Funcionario >= 55)
+   PRINT 'A '+ @Nome_Funcionario + ' tem ' 
+         + CAST(@Idade_Funcionario AS VARCHAR(30))
+		 + ', está próximo da aposentadoria'
+
+ELSE
+     PRINT 'A '+ @Nome_Funcionario + ' tem ' 
+         + CAST(@Idade_Funcionario AS VARCHAR(30))
+		 + ', ainda não pode'
+
+--Bonus
+DECLARE @NomeFuncionario VARCHAR(50) = 'João';
+DECLARE @BonusRecebido DECIMAL(10, 2);
+
+SELECT @BonusRecebido = Bonus
+FROM FUNCIONARIO
+WHERE Pnome = @NomeFuncionario;
+
+IF @BonusRecebido > 0
+    PRINT 'O funcionário ' + @NomeFuncionario + ' já recebeu um bônus este ano de ' + CAST(@BonusRecebido AS VARCHAR(10));
+ELSE
+    PRINT 'O funcionário ' + @NomeFuncionario + ' não recebeu bônus este ano.';
+
+--Data de contrato(Uma pessoa)
+DECLARE @Nome_Funcionario2 VARCHAR(50) = 'João';
+DECLARE @DataAdmissao DATE;
+
+SELECT @DataAdmissao = F.Data_Admissao
+FROM FUNCIONARIO AS F
+WHERE F.Pnome = @Nome_Funcionario2;
+
+IF @DataAdmissao IS NOT NULL AND DATEDIFF(MONTH, @DataAdmissao, GETDATE()) <= 6
+    PRINT 'O funcionário ' + @Nome_Funcionario2 + ' é um novo contratado.';
+ELSE
+    PRINT 'O funcionário ' + @Nome_Funcionario2 + ' não é um novo contratado.';
+
+
+--Case
+SELECT Pnome, Data_Admissao,
+    CASE
+        WHEN DATEDIFF(MONTH, Data_Admissao, GETDATE()) <= 12 THEN 'Novo Contrato'
+        ELSE 'Não Novo Contrato'
+    END AS Status_Contrato
+FROM FUNCIONARIO;
+
+--Classificando sálario
+SELECT CONCAT(F.Pnome, ' ', F.Minicial, ' ', F.Unome) AS 'Nome',Salario,
+    CASE
+        WHEN Salario <= 10000 THEN 'Baixo'
+		WHEN Salario > 10000 AND Salario <= 30000 THEN 'Médio'
+        ELSE 'Alto'
+    END AS 'Status'
+FROM FUNCIONARIO AS F;
+
+--Idade
+SELECT Pnome,Datanasc,
+    CASE
+        WHEN DATEADD(YEAR, DATEDIFF(YEAR, Datanasc, GETDATE()), Datanasc) > GETDATE() THEN DATEDIFF(YEAR, Datanasc, GETDATE()) - 1
+        ELSE DATEDIFF(YEAR, Datanasc, GETDATE())
+    END AS Idade
+FROM FUNCIONARIO
+ORDER BY Idade;
+
+--WHILE e BREAK
+DECLARE @Contador INT = 1
+WHILE @Contador <=10
+    BEGIN
+	 IF @Contador = 6
+	     BREAK;
+	   PRINT 'Contador: ' + CAST(@Contador AS VARCHAR(2));
+	   SET @Contador = @Contador + 1;
+	END
+
+--CONTINUE
+DECLARE @Contador1 INT = 0
+WHILE @Contador1 < 10
+    BEGIN
+	 SET @Contador1 = @Contador1 + 1
+	 IF @Contador1 % 2 = 0
+	   CONTINUE;
+	   PRINT 'Contador: ' + CAST(@Contador1 AS VARCHAR(2));
+	END
 
 
