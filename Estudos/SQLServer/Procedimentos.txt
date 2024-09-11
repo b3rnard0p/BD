@@ -1,0 +1,257 @@
+--Procedure
+CREATE PROCEDURE ExibirNome
+AS
+BEGIN
+    PRINT 'Bernardo'
+END
+
+EXEC ExibirNome;
+
+--Procedure
+CREATE PROCEDURE ListarFuncionariosEDepartamentos
+AS
+BEGIN
+    SELECT 
+        CONCAT(F.Pnome, ' ', F.Minicial, ' ', F.Unome) AS Nome_Completo,
+        D.Dnome AS Nome_Departamento
+    FROM 
+        FUNCIONARIO F
+    JOIN 
+        DEPARTAMENTO D ON F.Dnr = D.Dnumero;
+END;
+
+EXEC ListarFuncionariosEDepartamentos;
+
+--Variável
+CREATE PROCEDURE ListarFuncionariosPorDepartamento
+    @NomeDepartamento VARCHAR(15)
+AS
+BEGIN
+    SELECT 
+        CONCAT(F.Pnome, ' ', F.Minicial, ' ', F.Unome) AS Nome_Completo,
+        D.Dnome AS Nome_Departamento
+    FROM 
+        FUNCIONARIO F
+    JOIN 
+        DEPARTAMENTO D ON F.Dnr = D.Dnumero
+    WHERE 
+        D.Dnome = @NomeDepartamento;
+END;
+
+EXEC ListarFuncionariosPorDepartamento 'Matriz';
+
+--sp_helptext e WITH ENCRYPTION
+CREATE PROCEDURE RecuperarTodosFuncionarios
+WITH ENCRYPTION
+AS
+BEGIN
+    SELECT * 
+    FROM FUNCIONARIO;
+END;
+
+EXEC sp_helptext RecuperarTodosFuncionarios;
+
+--UPTADE
+CREATE PROCEDURE AtualizarSalarioFuncionario
+    @Cpf CHAR(11),
+    @NovoSalario DECIMAL(10, 2)
+AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM FUNCIONARIO WHERE Cpf = @Cpf)
+    BEGIN
+        UPDATE FUNCIONARIO
+        SET Salario = @NovoSalario
+        WHERE Cpf = @Cpf;
+
+        PRINT 'Salário atualizado com sucesso.';
+    END
+    ELSE
+    BEGIN
+        PRINT 'Funcionário não encontrado com o CPF informado.';
+    END
+END;
+
+EXEC AtualizarSalarioFuncionario '12345678966', 35000.00;
+
+--Inserindo funcionário
+CREATE PROCEDURE InserirFuncionario
+    @Pnome VARCHAR(15),
+    @Minicial CHAR(1),
+    @Unome VARCHAR(15),
+    @Cpf CHAR(11),
+    @Datanasc DATE,
+    @Endereco VARCHAR(255),
+    @Sexo CHAR(1),
+    @Salario DECIMAL(10, 2),
+    @Cpf_supervisor CHAR(11),
+    @Dnr INT,
+    @Data_Admissao DATE,
+    @Bonus DECIMAL(10, 2)
+AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM FUNCIONARIO WHERE Cpf = @Cpf)
+    BEGIN
+        PRINT 'Funcionário com esse CPF já existe.';
+    END
+    ELSE
+    BEGIN
+        INSERT INTO FUNCIONARIO (Pnome, Minicial, Unome, Cpf, Datanasc, Endereco, Sexo, Salario, Cpf_supervisor, Dnr, Data_Admissao, Bonus)
+        VALUES (@Pnome, @Minicial, @Unome, @Cpf, @Datanasc, @Endereco, @Sexo, @Salario, @Cpf_supervisor, @Dnr, @Data_Admissao, @Bonus);
+
+        PRINT 'Funcionário inserido com sucesso.';
+    END
+END;
+
+EXEC InserirFuncionario 
+    'Carlos', 'A', 'Silva', '12345678900', '1990-01-01', 'Rua Exemplo, 123', 
+    'M', 5000.00, '98765432100', 1, '2024-01-10', 1000.00;
+
+
+--Inserindo duas tabelas
+CREATE PROCEDURE InserirFuncionarioEDepartamento
+    @Pnome VARCHAR(15),
+    @Minicial CHAR(1),
+    @Unome VARCHAR(15),
+    @Cpf CHAR(11),
+    @Datanasc DATE,
+    @Endereco VARCHAR(255),
+    @Sexo CHAR(1),
+    @Salario DECIMAL(10, 2),
+    @Cpf_supervisor CHAR(11),
+    @Dnome VARCHAR(15),
+    @Data_inicio_gerente DATE,
+    @Data_Admissao DATE,
+    @Bonus DECIMAL(10, 2)
+AS
+BEGIN
+    DECLARE @Dnumero INT;
+
+    IF EXISTS (SELECT 1 FROM DEPARTAMENTO WHERE Dnome = @Dnome)
+    BEGIN
+        SELECT @Dnumero = Dnumero FROM DEPARTAMENTO WHERE Dnome = @Dnome;
+    END
+    ELSE
+    BEGIN
+        SELECT @Dnumero = ISNULL(MAX(Dnumero), 0) + 1 FROM DEPARTAMENTO;
+
+        INSERT INTO DEPARTAMENTO (Dnome, Dnumero, Cpf_gerente, Data_inicio_gerente)
+        VALUES (@Dnome, @Dnumero, @Cpf_supervisor, @Data_inicio_gerente);
+
+        PRINT 'Novo departamento inserido com sucesso.';
+    END
+
+    IF EXISTS (SELECT 1 FROM FUNCIONARIO WHERE Cpf = @Cpf)
+    BEGIN
+        PRINT 'Funcionário com esse CPF já existe.';
+    END
+    ELSE
+    BEGIN
+        INSERT INTO FUNCIONARIO (Pnome, Minicial, Unome, Cpf, Datanasc, Endereco, Sexo, Salario, Cpf_supervisor, Dnr, Data_Admissao, Bonus)
+        VALUES (@Pnome, @Minicial, @Unome, @Cpf, @Datanasc, @Endereco, @Sexo, @Salario, @Cpf_supervisor, @Dnumero, @Data_Admissao, @Bonus);
+
+        PRINT 'Funcionário inserido com sucesso.';
+    END
+END;
+
+EXEC InserirFuncionarioEDepartamento 
+    'Carlos', 'A', 'Silva', '12345678900', '1990-01-01', 'Rua Exemplo, 123', 
+    'M', 5000.00, '98765432100', 'Novo Departamento', '2024-01-01', 1000.00;
+
+
+--Verificando mais de um campo
+CREATE PROCEDURE InserirFuncionarioComVerificacaoNome
+    @Pnome VARCHAR(15),
+    @Minicial CHAR(1),
+    @Unome VARCHAR(15),
+    @Cpf CHAR(11),
+    @Datanasc DATE,
+    @Endereco VARCHAR(255),
+    @Sexo CHAR(1),
+    @Salario DECIMAL(10, 2),
+    @Cpf_supervisor CHAR(11),
+    @Dnr INT,
+    @Data_Admissao DATE,
+    @Bonus DECIMAL(10, 2)
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1 
+        FROM FUNCIONARIO 
+        WHERE Pnome = @Pnome AND Minicial = @Minicial AND Unome = @Unome
+    )
+    BEGIN
+        PRINT 'Já existe um funcionário com esse nome completo.';
+    END
+    ELSE
+    BEGIN
+        INSERT INTO FUNCIONARIO (Pnome, Minicial, Unome, Cpf, Datanasc, Endereco, Sexo, Salario, Cpf_supervisor, Dnr, Data_Admissao, Bonus)
+        VALUES (@Pnome, @Minicial, @Unome, @Cpf, @Datanasc, @Endereco, @Sexo, @Salario, @Cpf_supervisor, @Dnr, @Data_Admissao, @Bonus);
+
+        PRINT 'Funcionário inserido com sucesso.';
+    END
+END;
+
+EXEC InserirFuncionarioComVerificacaoNome 
+    'Carlos', 'A', 'Silva', '12345678900', '1990-01-01', 'Rua Exemplo, 123', 
+    'M', 5000.00, '98765432100', 1, '2024-01-10', 1000.00;
+
+
+--Listando
+CREATE PROCEDURE ListarFuncionariosPorFaixaSalarial
+    @SalarioMin DECIMAL(10, 2),
+    @SalarioMax DECIMAL(10, 2)
+AS
+BEGIN
+    IF @SalarioMin > @SalarioMax
+    BEGIN
+        PRINT 'O valor mínimo do salário não pode ser maior que o valor máximo.';
+        RETURN;
+    END
+
+    SELECT Pnome, Minicial, Unome, Salario
+    FROM FUNCIONARIO
+    WHERE Salario BETWEEN @SalarioMin AND @SalarioMax;
+
+    IF @@ROWCOUNT = 0
+    BEGIN
+        PRINT 'Nenhum funcionário encontrado dentro da faixa salarial fornecida.';
+    END
+END;
+
+EXEC ListarFuncionariosPorFaixaSalarial 5000, 35000;
+
+
+CREATE PROCEDURE ListarFuncionariosPorDepartamento1
+    @DepartamentoNome VARCHAR(15) = NULL
+AS
+BEGIN
+    IF @DepartamentoNome IS NULL
+    BEGIN
+        SELECT f.Pnome, f.Minicial, f.Unome, f.Salario, d.Dnome
+        FROM FUNCIONARIO f
+        LEFT JOIN DEPARTAMENTO d ON f.Dnr = d.Dnumero
+        ORDER BY f.Pnome, f.Unome;
+    END
+    ELSE
+    BEGIN
+        SELECT f.Pnome, f.Minicial, f.Unome, f.Salario, d.Dnome
+        FROM FUNCIONARIO f
+        INNER JOIN DEPARTAMENTO d ON f.Dnr = d.Dnumero
+        WHERE d.Dnome = @DepartamentoNome
+        ORDER BY f.Pnome, f.Unome;
+
+        IF @@ROWCOUNT = 0
+        BEGIN
+            PRINT 'Nenhum funcionário encontrado para o departamento especificado.';
+        END
+    END
+END;
+
+EXEC ListarFuncionariosPorDepartamento1;
+EXEC ListarFuncionariosPorDepartamento1 'Pesquisa';
+
+
+
+
+
+
