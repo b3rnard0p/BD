@@ -143,7 +143,7 @@ BEGIN
     PRINT 'Saldo insuficiente na conta de origem. Transação cancelada.';
 END;
 
---Inserindo em 3 tabelas
+--Save transaction
 BEGIN TRANSACTION;
 
 SAVE TRANSACTION savepoint;
