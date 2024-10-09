@@ -103,3 +103,12 @@ INSERT INTO DEPARTAMENTO (Dnome, Dnumero)
 VALUES ('Vendas', 6),
        ('Recursos Humanos', 7),
 	   ('TI', 8);
+
+INSERT INTO PRODUTO (Id, Nome, Qtd)
+VALUES (1, 'Caneta', 10),
+       (2, 'Caderno', 15),
+	   (3, 'borracha', 30);
+
+INSERT INTO CONTA (ID, Nome, Saldo) 
+VALUES (1, 'Conta A', 500.00),
+       (2, 'Conta B', 300.00);
