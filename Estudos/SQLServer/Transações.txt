@@ -1,0 +1,172 @@
+--Transection,Commit e Rollback
+BEGIN TRANSACTION;
+
+DECLARE @erro int = 0;
+
+INSERT INTO FUNCIONARIO (Pnome, Minicial, Unome, Cpf, Datanasc, Endereco, Sexo, Salario, Cpf_supervisor, Dnr, Data_Admissao, Bonus)
+VALUES ('Lucas', 'M', 'Dias', '11122233344', '1990-02-15', 'Rua Nova, 123', 'M', 4800.00, NULL, 1, '2024-09-01', 500.00);
+SET @erro = @@ERROR;
+INSERT INTO DEPARTAMENTO (Dnome, Dnumero, Cpf_gerente, Data_inicio_gerente)
+VALUES ('Tecnologia', 6, '11122233344', '2024-09-01');
+SET @erro = @erro + @@ERROR;
+
+IF @erro = 0
+    COMMIT TRANSACTION;
+ELSE
+    ROLLBACK TRANSACTION;
+
+--Rodar duas Transações juntas
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+BEGIN TRANSACTION;
+
+SELECT * FROM FUNCIONARIO;
+WAITFOR DELAY '00:00:15';
+
+COMMIT TRANSACTION
+
+BEGIN TRANSACTION;
+SELECT * FROM FUNCIONARIO AS F
+JOIN DEPARTAMENTO AS D ON Dnumero = F.Dnr
+ORDER BY D.Dnome;
+
+COMMIT TRANSACTION;
+
+--Aumento de salário
+BEGIN TRANSACTION;
+
+DECLARE @Erro1 INT;
+
+UPDATE FUNCIONARIO
+SET Salario = Salario * 1.10 
+WHERE Dnr = 5;
+
+SET @Erro1 = @@ERROR;
+
+IF @Erro1 = 0
+BEGIN
+    COMMIT TRANSACTION;
+    PRINT 'Salário atualizado com sucesso para todos os funcionários do departamento.';
+END
+ELSE
+BEGIN
+    ROLLBACK TRANSACTION;
+    PRINT 'Erro na atualização de salário. Todas as alterações foram revertidas.';
+END;
+
+--Verificação de estoque
+BEGIN TRANSACTION;
+
+DECLARE @ProdutoID INT = 1; 
+DECLARE @QuantidadeCompra INT = 5; 
+DECLARE @QuantidadeEstoque INT;
+DECLARE @Erro2 INT;
+
+SELECT @QuantidadeEstoque = Qtd
+FROM PRODUTO
+WHERE Id = @ProdutoID;
+
+IF @QuantidadeEstoque >= @QuantidadeCompra
+BEGIN
+    UPDATE PRODUTO
+    SET Qtd = Qtd - @QuantidadeCompra
+    WHERE Id = @ProdutoID;
+
+    SET @Erro2 = @@ERROR;
+
+    IF @Erro2 = 0
+    BEGIN
+        COMMIT TRANSACTION;
+        PRINT 'Compra realizada com sucesso. Estoque atualizado.';
+    END
+    ELSE
+    BEGIN
+        ROLLBACK TRANSACTION;
+        PRINT 'Erro ao atualizar o estoque. Transação revertida.';
+    END
+END
+ELSE
+BEGIN
+    ROLLBACK TRANSACTION;
+    PRINT 'Estoque insuficiente. Transação cancelada.';
+END;
+
+
+--Transações em conta bancária
+BEGIN TRANSACTION;
+
+DECLARE @ContaOrigemID INT = 1; 
+DECLARE @ContaDestinoID INT = 2; 
+DECLARE @ValorTransferencia DECIMAL(10, 2) = 200.00; 
+DECLARE @SaldoContaOrigem DECIMAL(10, 2);
+DECLARE @Erro3 INT;
+
+SELECT @SaldoContaOrigem = Saldo
+FROM CONTA
+WHERE ID = @ContaOrigemID;
+
+IF @SaldoContaOrigem >= @ValorTransferencia
+BEGIN
+    UPDATE CONTA
+    SET Saldo = Saldo - @ValorTransferencia
+    WHERE ID = @ContaOrigemID;
+
+    SET @Erro3 = @@ERROR;
+
+    IF @Erro3 = 0
+    BEGIN
+        UPDATE CONTA
+        SET Saldo = Saldo + @ValorTransferencia
+        WHERE ID = @ContaDestinoID;
+
+        SET @Erro3 = @@ERROR;
+
+        IF @Erro3 = 0
+        BEGIN
+            COMMIT TRANSACTION;
+            PRINT 'Transferência realizada com sucesso.';
+        END
+        ELSE
+        BEGIN
+            ROLLBACK TRANSACTION;
+            PRINT 'Erro ao transferir para a conta de destino. Transação revertida.';
+        END
+    END
+    ELSE
+    BEGIN
+        ROLLBACK TRANSACTION;
+        PRINT 'Erro ao debitar da conta de origem. Transação revertida.';
+    END
+END
+ELSE
+BEGIN
+    ROLLBACK TRANSACTION;
+    PRINT 'Saldo insuficiente na conta de origem. Transação cancelada.';
+END;
+
+--Inserindo em 3 tabelas
+BEGIN TRANSACTION;
+
+SAVE TRANSACTION savepoint;
+
+BEGIN
+
+    INSERT INTO FUNCIONARIO (Pnome, Minicial, Unome, Cpf, Datanasc, Endereco, Sexo, Salario, Cpf_supervisor, Dnr, Data_Admissao, Bonus)
+    VALUES ('Lucas', 'M', 'Ferreira', '11122233355', '1990-05-10', 'Rua Nova, 10, São Paulo, SP', 'M', 5000.00, NULL, 1, '2024-01-01', 200.00);
+
+
+    INSERT INTO DEPARTAMENTO (Dnome, Dnumero, Cpf_gerente, Data_inicio_gerente)
+    VALUES ('Marketing', 9, '11122233344', '2024-01-02');
+
+
+    INSERT INTO PROJETO (Projnome, Projnumero, Projlocal, Dnum)
+    VALUES ('Campanha' , 4, 'São Paulo', 6);
+
+
+    COMMIT TRANSACTION;
+END 
+BEGIN 
+
+    ROLLBACK TRANSACTION savepoint;
+    
+    PRINT 'Ocorreu um erro durante a inserção. Transação revertida até o SAVEPOINT.';
+END;
