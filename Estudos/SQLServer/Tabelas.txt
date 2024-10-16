@@ -90,3 +90,10 @@ CREATE TABLE CONTA (
     Nome VARCHAR(50),
     Saldo DECIMAL(10, 2)
 );
+
+CREATE TABLE Log_Funcionario (
+    LogID INT IDENTITY(1,1) PRIMARY KEY,
+    Cpf CHAR(11),
+    Operacao VARCHAR(10),
+    Data_Hora DATETIME DEFAULT GETDATE()
+);
