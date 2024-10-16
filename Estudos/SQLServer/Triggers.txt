@@ -1,0 +1,132 @@
+--CREATE TRIGGER com AFTER
+CREATE TRIGGER teste_trigger_after
+ON FUNCIONARIO
+AFTER INSERT
+AS
+PRINT 'Olá Mundo';
+
+INSERT INTO FUNCIONARIO VALUES ('Bernardo', 'P', 'Freitas', '12341234444', '1937-11-10', 'Rua do Horto, 35, São Paulo, SP', 'M', 55000, NULL, 1);
+
+--Usando DECLARE
+CREATE TRIGGER teste1_trigger_after
+ON FUNCIONARIO
+AFTER INSERT
+AS
+BEGIN
+	DECLARE @Cpf CHAR(11),
+			@Pnome VARCHAR(15),
+			@Unome VARCHAR(15),
+			@Salario DECIMAL(10, 2);
+	SELECT @Cpf = I.Cpf, @Pnome = I.Pnome, @Unome = I.Unome, @Salario = I.Salario
+	FROM inserted AS I;
+	PRINT 'Funcionário Inserido: ';
+	PRINT 'CPF: ' + @Cpf;
+	PRINT 'Nome: ' + @Pnome + '' +  @Unome;
+	PRINT 'Salário' + CAST(@Salario AS VARCHAR(20));
+END;
+
+INSERT INTO FUNCIONARIO(Cpf, Pnome, Unome, Salario)
+VALUES ('12345678910', 'Madalena', 'Silva', 1500 );
+
+--CREATE TRIGGER com INSTEAD PF
+CREATE TRIGGER teste_trigger_insteafof
+ON FUNCIONARIO
+INSTEAD OF INSERT
+AS
+PRINT 'Olá de novo! Não Inserir o registro desta vez!';
+
+INSERT INTO FUNCIONARIO(Cpf, Pnome, Unome, Salario)
+VALUES ('12345678911', 'Silva', 'Silva', 2000 );
+
+--CREATE TRIGGER com Condição
+CREATE TRIGGER teste_trigger_condicao
+ON FUNCIONARIO
+INSTEAD OF INSERT
+AS
+BEGIN
+	DECLARE @Pnome VARCHAR(15),
+			@Unome VARCHAR(15);
+
+	SELECT @Pnome = i.Pnome, @Unome = i.Unome
+	FROM inserted AS i;
+
+    IF EXISTS (SELECT 1 FROM FUNCIONARIO WHERE Pnome = @Pnome AND Unome = @Unome)
+
+		 PRINT 'Já existe uma pessoa com o mesmo nome e sobrenome.';
+    ELSE
+    BEGIN
+        INSERT INTO FUNCIONARIO (Cpf, Pnome, Unome)
+		SELECT I.Cpf, I.Pnome, I.Unome
+		FROM inserted AS I;
+		PRINT 'Sucesso';
+    END
+END;
+
+INSERT INTO FUNCIONARIO(Cpf, Pnome, Unome, Salario)
+VALUES ('12345678913', 'Madalena', 'Silva', 1500 );
+
+SELECT * FROM FUNCIONARIO;
+
+--Vendo se tem trigger em determinada tabela
+EXEC sp_helptrigger @Tabname = FUNCIONARIO;
+
+--Verificando os triggers habilitados ou desabilitados
+SELECT *
+FROM sys.triggers
+WHERE is_disabled = 0 OR is_disabled = 1 
+
+CREATE TRIGGER trigger_after_nome
+ON FUNCIONARIO
+AFTER INSERT, UPDATE
+AS
+IF UPDATE (Pnome)
+BEGIN
+PRINT 'O nome foi alterado'
+END
+ELSE
+BEGIN
+PRINT 'Nome não foi modificado'
+END
+
+--Criando um Log
+CREATE TRIGGER trg_Log_Insert_Funcionario
+ON FUNCIONARIO
+AFTER INSERT
+AS
+BEGIN
+    INSERT INTO Log_Funcionario (Cpf, Operacao)
+    SELECT i.Cpf, 'INSERT'
+    FROM inserted AS i;
+END;
+
+INSERT INTO FUNCIONARIO(Cpf, Pnome, Unome, Salario)
+VALUES ('12345678916', 'Jade', 'Silva', 15000 );
+
+SELECT * FROM  Log_Funcionario;
+
+--Verificação de salário
+CREATE TRIGGER trg_Salario_Minimo_Funcionario
+ON FUNCIONARIO
+INSTEAD OF INSERT
+AS
+BEGIN
+	DECLARE @Salario DECIMAL(10, 2);
+	SELECT @Salario = I.Salario FROM inserted as I;
+  
+    IF @Salario >= 1000
+    BEGIN
+	    INSERT INTO FUNCIONARIO (Pnome, Unome, Cpf, Salario)
+        SELECT I.Pnome, I.Unome, I.Cpf, I.Salario
+        FROM inserted AS I;        
+    END
+    ELSE
+    BEGIN
+        RAISERROR ('Salário deve ser maior ou igual a R$ 1.000,00. Inserção cancelada.', 16, 1);
+        ROLLBACK TRANSACTION;
+    END;
+END;
+
+INSERT INTO FUNCIONARIO(Cpf, Pnome, Unome, Salario)
+VALUES ('12345678919', 'Jessica', 'Silva', 9000 );
+
+SELECT * FROM  Funcionario;
