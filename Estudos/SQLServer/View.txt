@@ -1,0 +1,33 @@
+--VIEW(Criação)
+CREATE VIEW vw_livros_detalhados AS
+SELECT 
+    livro.titulo AS 'Título', 
+    livro.ano AS 'Ano', 
+    editora.nome AS 'Editora', 
+    CONCAT(autor.nome, ' (', autor.nacionalidade, ')') AS 'Autor/Nacionalidade', 
+    categoria.tipo_categoria AS 'Categoria'
+FROM livro
+JOIN editora ON livro.fk_editora = editora.id
+JOIN categoria ON livro.fk_categoria = categoria.id
+JOIN livroautor ON livro.isbn = livroautor.fk_livro
+JOIN autor ON livroautor.fk_autor = autor.id
+
+SELECT * FROM vw_livros_detalhados;
+
+--VIEW(Alteração)
+ALTER VIEW vw_livros_detalhados AS
+SELECT livro.isbn AS 'ISBN', 
+       livro.titulo AS 'Título',
+       livro.ano AS 'Ano', 
+       editora.nome AS 'Editora',
+       CONCAT(autor.nome, ' (', autor.nacionalidade, ')') AS 'Autor/Nacionalidade',
+       categoria.tipo_categoria AS 'Categoria'
+FROM livro
+JOIN editora ON livro.fk_editora = editora.id
+JOIN categoria ON livro.fk_categoria = categoria.id
+JOIN livroautor ON livroautor.fk_livro = livro.isbn
+JOIN autor ON livroautor.fk_autor = autor.id;
+
+
+--VIEW(Exclusão)
+DROP VIEW vw_livros_detalhados;
