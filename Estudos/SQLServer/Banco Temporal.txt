@@ -52,3 +52,12 @@ FOR SYSTEM_TIME AS OF '2024-11-13 00:14:10' ORDER BY Carroid;
 SELECT * FROM InventarioCarros
   FOR SYSTEM_TIME ALL 
   WHERE CarroId = 1
+
+SELECT DISTINCT
+    h.CarroId AS DeletedCarId
+FROM
+    [dbo].[InventarioCarros] t
+    RIGHT JOIN [dbo].[InventarioCarros] h
+    ON t.CarroId = h.CarroId 
+WHERE 
+    t.CarroId IS NULL
