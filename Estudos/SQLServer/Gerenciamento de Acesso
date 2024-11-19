@@ -1,0 +1,6 @@
+--Da permição
+GRANT INSERT ON DISTRIBUIDORA.[dbo].[BEBIDAS] TO Juca;
+--Tira permição
+DENY SELECT ON DISTRIBUIDORA.[dbo].[vw_Bebidas] TO Juca;
+--Da novamente a permição
+REVOKE SELECT ON DISTRIBUIDORA.[dbo].[vw_Bebidas] TO Juca;
