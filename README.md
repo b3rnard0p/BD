@@ -1,5 +1,7 @@
 **Neste Repositório demonstro meus estudos e projetos com MySQL e SqlServer**
 
+---
+
 ### História do MySQL
 
 MySQL é um sistema de gerenciamento de banco de dados relacional (SGBD) de código aberto desenvolvido pela empresa sueca MySQL AB. Foi lançado oficialmente em 1995 e rapidamente se tornou um dos bancos de dados mais utilizados no mundo. Em 2008, a Sun Microsystems adquiriu o MySQL e, posteriormente, em 2010, a Oracle Corporation assumiu seu controle após a aquisição da Sun Microsystems.
